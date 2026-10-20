@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from gemini_activity_harvester.parser import parse_activity_dump, classify_prompt_intent
 from gemini_activity_harvester.dedupe import Deduplicator
 from gemini_activity_harvester.core import harvest_and_audit
+from gemini_activity_harvester.scraper import parse_dialog_text
 
 SAMPLE_ACTIVITY_DUMP = """
 Gemini Apps
@@ -29,6 +30,27 @@ Audio included.
 7:32 PM • • Details
 """
 
+SAMPLE_DIALOG_TEXT = """Item details
+more_vert
+close
+Gemini Apps
+Prompted Create a custom skill that defines the interaction between the conversational interface and autonomous background agents
+Audio included.
+Details
+event
+Today at 10:18 PM
+apps
+Gemini Apps
+https://gemini.google.com/app/dab487a9895d6b65
+chat
+
+I've created and activated your custom skill, background-agent-orchestration.
+
+Why this activity?
+
+This activity was saved to your Google Account.
+"""
+
 class TestHarvester(unittest.TestCase):
     def test_parse_activity_dump(self):
         items = parse_activity_dump(SAMPLE_ACTIVITY_DUMP)
@@ -43,6 +65,10 @@ class TestHarvester(unittest.TestCase):
         res_skill = classify_prompt_intent("Can you come up with a plan for a remote control skill?")
         self.assertEqual(res_skill["type"], "skill")
         self.assertEqual(res_skill["recommended_name"], "remote-control-skill")
+
+        res_bg = classify_prompt_intent("Create a custom skill for conversational interface and autonomous background agents")
+        self.assertEqual(res_bg["type"], "skill")
+        self.assertEqual(res_bg["recommended_name"], "background-agent-orchestration")
 
         res_handoff = classify_prompt_intent("Generate a prompt to Handoff to a coding agent")
         self.assertEqual(res_handoff["type"], "prompt_tool")
@@ -69,6 +95,13 @@ class TestHarvester(unittest.TestCase):
         self.assertEqual(result["total_creation_events"], 3)
         baton_entry = next(i for i in result["items"] if i["recommended_name"] == "baton")
         self.assertTrue(baton_entry["is_duplicate"])
+
+    def test_parse_dialog_text(self):
+        parsed = parse_dialog_text(SAMPLE_DIALOG_TEXT)
+        self.assertIn("Create a custom skill", parsed["full_prompt"])
+        self.assertEqual(parsed["chat_url"], "https://gemini.google.com/app/dab487a9895d6b65")
+        self.assertIn("Today at 10:18 PM", parsed["timestamp"])
+        self.assertIn("background-agent-orchestration", parsed["model_response"])
 
 if __name__ == "__main__":
     unittest.main()
