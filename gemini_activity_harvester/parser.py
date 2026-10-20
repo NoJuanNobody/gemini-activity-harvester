@@ -69,6 +69,38 @@ def classify_prompt_intent(prompt: str) -> Dict[str, Any]:
     """
     p_lower = prompt.lower()
     
+    # Check for 36 Research Papers Monorepo
+    if "36 research paper" in p_lower or "36 papers" in p_lower:
+        return {
+            "type": "mcp_or_agent_repo",
+            "confidence": 0.96,
+            "recommended_name": "research-ecosystem"
+        }
+
+    # Check for tmux fleet launcher
+    if "tmux" in p_lower and any(k in p_lower for k in ["session", "sessions", "dangerously", "fleet", "startup"]):
+        return {
+            "type": "skill",
+            "confidence": 0.95,
+            "recommended_name": "tmux-agent-fleet"
+        }
+
+    # Check for Obsidian GraphRAG paywall / vending API
+    if "obsidian" in p_lower and any(k in p_lower for k in ["paywall", "vending", "api", "graph rag", "graphrag", "vault"]):
+        return {
+            "type": "mcp_or_agent_repo",
+            "confidence": 0.92,
+            "recommended_name": "vault-graphrag-paywall"
+        }
+
+    # Check for Multi-Domain Lexicon / Graphic Engineering Taxonomy
+    if any(k in p_lower for k in ["lexigraphical", "lexicographical", "graphic engineering"]):
+        return {
+            "type": "skill",
+            "confidence": 0.93,
+            "recommended_name": "multi-domain-lexicon"
+        }
+
     # Check for specific skill sub-types
     if any(k in p_lower for k in ["skill", "agent skill", "custom skill"]):
         rec_name = "agent-skill"
@@ -77,7 +109,7 @@ def classify_prompt_intent(prompt: str) -> Dict[str, Any]:
         elif any(k in p_lower for k in ["background", "background agent", "conversational interface", "orchestration"]):
             rec_name = "background-agent-orchestration"
         elif any(k in p_lower for k in ["edge", "local ai", "edge agent"]):
-            rec_name = "edge-agent-graph-loop"
+            rec_name = "edge-agent-creative-pipeline"
         elif "artcraft" in p_lower:
             rec_name = "artcraft-pipeline"
             

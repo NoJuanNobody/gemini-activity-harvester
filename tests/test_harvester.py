@@ -70,6 +70,22 @@ class TestHarvester(unittest.TestCase):
         self.assertEqual(res_bg["type"], "skill")
         self.assertEqual(res_bg["recommended_name"], "background-agent-orchestration")
 
+        res_edge = classify_prompt_intent("Create a skill incorporating local AI edge agents and graph loop pipelines")
+        self.assertEqual(res_edge["type"], "skill")
+        self.assertEqual(res_edge["recommended_name"], "edge-agent-creative-pipeline")
+
+        res_tmux = classify_prompt_intent("Create a startup command that uses tmux to create eight cloud code sessions with dangerously skip permissions")
+        self.assertEqual(res_tmux["type"], "skill")
+        self.assertEqual(res_tmux["recommended_name"], "tmux-agent-fleet")
+
+        res_vault = classify_prompt_intent("I want to host an Obsidian vault in the cloud and put an API paywall over it")
+        self.assertEqual(res_vault["type"], "mcp_or_agent_repo")
+        self.assertEqual(res_vault["recommended_name"], "vault-graphrag-paywall")
+
+        res_lex = classify_prompt_intent("I want to create lexigraphical taxonomy for all of the domains and graphic engineering")
+        self.assertEqual(res_lex["type"], "skill")
+        self.assertEqual(res_lex["recommended_name"], "multi-domain-lexicon")
+
         res_handoff = classify_prompt_intent("Generate a prompt to Handoff to a coding agent")
         self.assertEqual(res_handoff["type"], "prompt_tool")
         self.assertEqual(res_handoff["recommended_name"], "baton")
